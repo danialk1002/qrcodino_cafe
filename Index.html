@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>QRcodino Café</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Tahoma, sans-serif;
+  background: #f8f5ff;
+  color: #292039;
+}
+
+header {
+  background: #7B00FF;
+  color: white;
+  padding: 35px 20px;
+  text-align: center;
+  border-radius: 0 0 30px 30px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+header p {
+  font-size: 13px;
+}
+
+.container {
+  max-width: 650px;
+  margin: auto;
+  padding: 20px;
+}
+
+.categories {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 25px;
+}
+
+.categories button {
+  border: none;
+  padding: 12px 18px;
+  border-radius: 25px;
+  background: white;
+  color: #7B00FF;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.categories button.active {
+  background: #7B00FF;
+  color: white;
+}
+
+.product {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 3px 12px #0000000d;
+}
+
+.product .emoji {
+  font-size: 45px;
+  background: #f2e8ff;
+  border-radius: 15px;
+  padding: 15px;
+}
+
+.info {
+  flex: 1;
+}
+
+.info h3 {
+  margin: 0 0 8px;
+}
+
+.info p {
+  font-size: 12px;
+  color: #777;
+}
+
+.price {
+  color: #7B00FF;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.add {
+  background: #7B00FF;
+  color: white;
+  border: none;
+  padding: 9px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.cart {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 30px;
+}
+
+.cart h2 {
+  color: #7B00FF;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  gap: 10px;
+}
+
+.cart-item button {
+  border: none;
+  background: #eee2ff;
+  color: #7B00FF;
+  padding: 7px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.total {
+  font-weight: bold;
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.checkout {
+  width: 100%;
+  background: #7B00FF;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>☕ QRcodino Café</h1>
+  <p>یک فنجان تجربه متفاوت، فقط با یک اسکن 💜</p>
+  <small>Digital Menu | Demo Version</small>
+</header>
+
+<div class="container">
+
+  <h2>منوی کافه</h2>
+
+  <div class="categories">
+    <button class="active" onclick="filterMenu('all',this)">همه</button>
+    <button onclick="filterMenu('hot',this)">☕ نوشیدنی گرم</button>
+    <button onclick="filterMenu('cold',this)">🥤 نوشیدنی سرد</button>
+    <button onclick="filterMenu('dessert',this)">🍰 دسر</button>
+  </div>
+
+  <div id="menu"></div>
+
+  <div class="cart">
+    <h2>🛒 سبد خرید شما</h2>
+    <div id="cartItems">هنوز محصولی انتخاب نکرده‌اید.</div>
+
+    <div class="total" id="total">
+      مجموع: ۰ تومان
+    </div>
+
+    <button class="checkout" onclick="checkout()">
+      ثبت سفارش آزمایشی
+    </button>
+  </div>
+
+</div>
+
+<footer>
+  Powered by QRcodino 💜
+  <p>این وب‌سایت نسخه نمایشی است.</p>
+</footer>
+
+<script>
+
+const products = [
+  {id:1,name:"اسپرسو",price:65000,category:"hot",emoji:"☕",desc:"قهوه غلیظ و خوش‌عطر"},
+  {id:2,name:"کاپوچینو",price:95000,category:"hot",emoji:"☕",desc:"اسپرسو با شیر و فوم لطیف"},
+  {id:3,name:"لاته",price:105000,category:"hot",emoji:"🥛",desc:"ترکیب اسپرسو و شیر گرم"},
+  {id:4,name:"آیس لاته",price:115000,category:"cold",emoji:"🧊",desc:"قهوه سرد با شیر و یخ"},
+  {id:5,name:"موهیتو",price:110000,category:"cold",emoji:"🍹",desc:"نعناع تازه و لیمو"},
+  {id:6,name:"لیموناد",price:85000,category:"cold",emoji:"🍋",desc:"نوشیدنی خنک لیمویی"},
+  {id:7,name:"چیزکیک",price:145000,category:"dessert",emoji:"🍰",desc:"چیزکیک لطیف و خوشمزه"},
+  {id:8,name:"براونی",price:125000,category:"dessert",emoji:"🍫",desc:"کیک شکلاتی مخصوص"}
+];
+
+let cart = {};
+
+function formatPrice(number) {
+  return number.toLocaleString("fa-IR");
+}
+
+function showMenu(category="all") {
+  const menu = document.getElementById("menu");
+  menu.innerHTML = "";
+
+  products.filter(p => category === "all" || p.category === category)
+  .forEach(p => {
+    menu.innerHTML += `
+      <div class="product">
+        <div class="emoji">${p.emoji}</div>
+        <div class="info">
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="price">${formatPrice(p.price)} تومان</div>
+          <button class="add" onclick="addToCart(${p.id})">
+            + افزودن
+          </button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function filterMenu(category,button) {
+  document.querySelectorAll(".categories button")
+  .forEach(b => b.classList.remove("active"));
+
+  button.classList.add("active");
+  showMenu(category);
+}
+
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  updateCart();
+}
+
+function changeQuantity(id,amount) {
+  cart[id] += amount;
+
+  if(cart[id] <= 0) {
+    delete cart[id];
+  }
+
+  updateCart();
+}
+
+function updateCart() {
+  const container = document.getElementById("cartItems");
+  container.innerHTML = "";
+
+  let total = 0;
+
+  Object.keys(cart).forEach(id => {
+    const product = products.find(p => p.id == id);
+    const quantity = cart[id];
+
+    total += product.price * quantity;
+
+    container.innerHTML += `
+      <div class="cart-item">
+        <span>${product.name}</span>
+        <div>
+          <button onclick="changeQuantity(${id},-1)">−</button>
+          ${quantity}
+          <button onclick="changeQuantity(${id},1)">+</button>
+        </div>
+      </div>
+    `;
+  });
+
+  if(Object.keys(cart).length === 0) {
+    container.innerHTML = "هنوز محصولی انتخاب نکرده‌اید.";
+  }
+
+  document.getElementById("total").innerText =
+    "مجموع: " + formatPrice(total) + " تومان";
+}
+
+function checkout() {
+  if(Object.keys(cart).length === 0) {
+    alert("ابتدا محصولی انتخاب کنید.");
+    return;
+  }
+
+  alert("💜 سفارش آزمایشی شما با موفقیت شبیه‌سازی شد! این سفارش به کافه ارسال نشده و پرداختی انجام نشده است.");
+}
+
+showMenu();
+
+</script>
+</body>
+</html>
